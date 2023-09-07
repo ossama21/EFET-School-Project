@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<td style="background-color: #FFEADD; text-align: center"><a href="/consultGradesStudent/{{ student_infos.id }}" class="btn btn-primary btn">Check My Grades</a></td>
+
+<div class="container">
+    <div class="row my-2">
+
+      <div class="col-lg-6 order-lg-1" style="background-color:#AAAAAA;">
+        <div class="tab-content py-4">
+
+          <table style="width: 100%">
+              <colgroup>
+                 <col span="1" style="width: 20%;">
+                 <col span="1" style="width: 20%;">
+                 <col span="1" style="width: 60%;">
+              </colgroup>
+
+              <thead>
+                  <tr>
+                      <th style="background-color: #777; text-align: center">Absence Date</th>
+                      <th style="background-color: #777; text-align: center">Justified ?</th>
+                      <th style="background-color: #777; text-align: center">Details</th>
+                  </tr>
+              </thead>
+              <tbody>
+                {% for absence in absences %}
+                  <tr style="height:35px;">
+                      <td style="background-color: #FFEADD; text-align: center">{{ absence.date_absence }}</td>
+                      <td style="background-color: #FFEADD; text-align: center">{{ absence.justified }}</td>
+                      <td style="background-color: #FFEADD; text-align: center">{{ absence.details }}</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+      </div>
+
+        <div class="col-lg-6 order-lg-2" style="background-color:#282b24;">
+            <div class="tab-content py-4">
+
+              <table style="width: 100%">
+                  <colgroup>
+                     <col span="1" style="width: 20%;">
+                     <col span="1" style="width: 10%;">
+                     <col span="1" style="width: 10%;">
+                     <col span="1" style="width: 60%;">
+                  </colgroup>
+
+                  <thead>
+                      <tr>
+                          <th style="background-color: #777; text-align: center">Date</th>
+                          <th style="background-color: #777; text-align: center">From</th>
+                          <th style="background-color: #777; text-align: center">To</th>
+                          <th style="background-color: #777; text-align: center">Message</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for message in messages %}
+                      <tr style="height:35px;">
+                          <td style="background-color: #FFEADD; text-align: center">{{ message.date_sent }}</td>
+                          <td style="background-color: #FFEADD; text-align: center">{{ message.msg_from }}</td>
+                          <td style="background-color: #FFEADD; text-align: center">{{ message.msg_to }}</td>
+                          <td style="background-color: #FFEADD; text-align: center">{{ message.content }}</td>
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+              <form method="POST" action="/sendMessage">
+
+                <div class="row my-2">
+                  <div class="col-lg-3 order-lg-1">
+                    <div class="tab-content py-4">
+
+                        <div class="field">
+                          <label for="recipient_id" style="color: white;">Send to :</label>
+                            <div class="control">
+                              <select name="recipient_id" class="form-select" aria-label="type" >
+                                {% for recipient in users %}
+                                  <option value="{{ recipient.id }}">{{ recipient.name }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                        </div>
+
+                    </div>
+                  </div>
+
+                    <div class="col-lg-9 order-lg-2" style="background-color:#282b24;">
+                        <div class="tab-content py-4">
+
+                          <div class="field">
+                            <label for="recipient_id" style="color: white;">Message :</label>
+                              <div class="control">
+                                  <textarea class="input" id="message" name="message" rows="4" cols="50" placeholder="Your message here .."></textarea>
+                              </div>
+                          </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <button class="button is-primary">Send Message</button>
+              </form>
+
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+
+{% endblock %}

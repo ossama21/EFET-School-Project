@@ -1,0 +1,1252 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+  table, th, td {
+    border: 2px solid black;
+    padding: 5px;
+  }
+  table {
+    border-spacing: 15px;
+  }
+  p.spacing {
+    line-height: 2;
+  }
+  .parent {
+    overflow:hidden;
+    width:90%;
+  }
+  .left{
+    float:left;
+    width: 50%;
+  }
+
+  .right {
+    float: right;
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/fontawesome.min.css">
+{% endblock head %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
+
+
+<script type="text/javascript">
+   function search() {
+     var filter = event.target.value.toUpperCase();
+     var rows = document.querySelector("#myTable tbody").rows;
+
+         for (var i = 0; i < rows.length; i++) {
+             var firstCol = rows[i].cells[0].textContent.toUpperCase();
+             var secondCol = rows[i].cells[1].textContent.toUpperCase();
+             if (firstCol.indexOf(filter) > -1 || secondCol.indexOf(filter) > -1) {
+                 rows[i].style.display = "";
+             } else {
+                 rows[i].style.display = "none";
+             }
+         }
+   }
+
+</script>
+
+Search :
+<input id="myInput" type="text" onKeyUp="return search()"/>
+
+<table style="width: 100%" id="myTable">
+    <colgroup>
+       <col span="1" style="width: 12%;">
+       <col span="1" style="width: 12%;">
+       <col span="1" style="width: 12%;">
+       <col span="1" style="width: 14%;">
+       <col span="1" style="width: 10%;">
+       <col span="1" style="width: 7%;">
+       <col span="1" style="width: 7%;">
+       <col span="1" style="width: 7%;">
+       <col span="1" style="width: 7%;">
+       <col span="1" style="width: 7%;">
+       <col span="1" style="width: 4%;">
+    </colgroup>
+
+    <thead>
+        <tr>
+            <th style="background-color: #777; text-align: center">Name</th>
+            <th style="background-color: #777; text-align: center">Email</th>
+            <th style="background-color: #777; text-align: center">Phone</th>
+            <th style="background-color: #777; text-align: center">Major</th>
+            <th style="background-color: #777; text-align: center">Registration</th>
+            <th style="background-color: #777; text-align: center">Edit</th>
+            <th style="background-color: #777; text-align: center">Delete</th>
+            <th style="background-color: #777; text-align: center">Payments</th>
+            <th style="background-color: #777; text-align: center">Absence</th>
+            <th style="background-color: #777; text-align: center">Grades</th>
+            <th style="background-color: #777; text-align: center"><b>+</b></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr style="height:35px;">
+            <td style="background-color: #FFEADD; text-align: center">{{ user.name }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ user.email }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ user.phone }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ user.major }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ user.registration }}</td>
+            <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editStudentModal{{user.id}}">Edit</button></td>
+            <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteStudentModal{{user.id}}">Delete</button></td>
+            <td style="background-color: #FFEADD; text-align: center"><a href="/consultPayments/{{ user.id }}" class="btn btn-outline-success btn-sm">Check</a></td>
+            <td style="background-color: #FFEADD; text-align: center"><a href="/consultAbsence/{{ user.id }}" class="btn btn-outline-dark btn-sm">Check</a></td>
+            <td style="background-color: #FFEADD; text-align: center"><a href="/consultGrades/{{ user.id }}" class="btn btn-outline-secondary btn-sm">Check</a></td>
+            <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#moreStudentModal{{user.id}}"><b>+</b></button></td>
+        </tr>
+
+        <!-- Modal start -->
+        <div class="modal fade" id="editStudentModal{{user.id}}" tabindex="-1" role="dialog" aria-labelledby="editStudentModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editStudentLabel">Edit Student</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                    <div class="box">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="notification is-danger">
+                            {{ messages[0] }}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                    <form method="POST" action="/editStudent">
+                      <div class="field">
+                        <label for="gender">Name :</label>
+                          <div class="control">
+                              <input class="input is-large" type="text" name="name" value="{{ user.name }}" placeholder="Name" autofocus="" >
+                          </div>
+                      </div>
+                        <div class="field">
+                          <label for="gender">Email :</label>
+                            <div class="control">
+                                <input class="input is-large" type="email" name="email" value="{{ user.email }}" placeholder="Email" autofocus="" >
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Password :</label>
+                            <div class="control">
+                                <input class="input is-large" type="password" name="password" placeholder="Password">
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Phone :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="phone" value="{{ user.phone }}" placeholder="Phone" autofocus="" >
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="gender">Age :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="age" value="{{ user.age }}" placeholder="Age" >
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                              <label for="major">Major :</label>
+                              <select name="major" class="form-select" aria-label="type" >
+                                {% for major in majors %}
+                                  <option value="{{ major.major_name }}" {% if major.major_name == user.major %} selected {% endif %}>{{ major.major_name }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                          <label for="gender">Current year :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="current_year" value="{{ user.year }}" placeholder="Year" >
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Address :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="address" value="{{ user.address }}" placeholder="Address" >
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Registration ID :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="registration" value="{{ user.registration }}" placeholder="Registration" >
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Register date :</label>
+                            <div class="control">
+                              <input class="input is-large" type="date" id="register_date" name="register_date" value="{{ user.register_date }}" placeholder="Registration Date">
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Role :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="role" value="{{ user.role }}" placeholder="Role">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                              <label for="gender">Gender :</label>
+                              <select name="gender" class="form-select" aria-label="type" >
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                              </select>
+                            </div>
+                        </div>
+                        <input class="input is-large" type="hidden" name="user_id" placeholder="{{user.id}}" value="{{user.id}}" autofocus="">
+
+                        <input class="btn btn-danger" type="submit" value="Save Changes">
+                    </form>
+                  </div>
+
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal end -->
+
+        <!-- Modal start -->
+        <div class="modal fade" id="moreStudentModal{{user.id}}" tabindex="-1" role="dialog" aria-labelledby="moreStudentModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="moreStudentModalLabel">More Infos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                    <div class="box">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="notification is-danger">
+                            {{ messages[0] }}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                    <form method="POST">
+
+                      <div class="field">
+                        <label for="gender">Name :</label>
+                          <div class="control">
+                              <input class="input is-large" type="text" name="name" value="{{ user.name }}" placeholder="Name" autofocus="" disabled>
+                          </div>
+                      </div>
+                        <div class="field">
+                          <label for="gender">Email :</label>
+                            <div class="control">
+                                <input class="input is-large" type="email" name="email" value="{{ user.email }}" placeholder="Email" autofocus="" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Phone :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="phone" value="{{ user.phone }}" placeholder="Phone" autofocus="" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="gender">Age :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="age" value="{{ user.age }}" placeholder="Age" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Major :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="major" value="{{ user.major }}" placeholder="Major" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Current year :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="current_year" value="{{ user.year }} nd Year" placeholder="Year" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Address :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="address" value="{{ user.address }}" placeholder="Address" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Registration ID :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="registration" value="{{ user.registration }}" placeholder="Registration" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Register date :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="register_date" value="{{ user.register_date }}" placeholder="Registration Date" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Role :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="role" value="{{ user.role }}" placeholder="Role" disabled>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                              <label for="gender">Gender :</label>
+                              <select name="gender" class="form-select" aria-label="type" disabled>
+                                <option value="male" selected>Male</option>
+                                <option value="female">Female</option>
+                              </select>
+                            </div>
+                        </div>
+                        <input class="input is-large" type="hidden" name="user_id" placeholder="{{user.id}}" value="{{user.id}}" autofocus="">
+
+                    </form>
+                  </div>
+
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal end -->
+
+        <!-- Modal start -->
+        <div class="modal fade" id="deleteStudentModal{{user.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteStudentModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteStudentModalLabel">Delete Student</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                Are you sure about deleting this student permanently ?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form method="POST" action="{{ url_for('main.deleteStudent') }}">
+                  <input class="input is-large" type="hidden" name="user_id" placeholder="{{user.id}}" value="{{user.id}}" autofocus="">
+                  <input class="btn btn-danger" type="submit" value="Delete">
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal end -->
+
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<p class="spacing"></p>
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUserModal">Add Student</button>
+
+
+<!-- Modal start -->
+<div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addUserModalLabel">Add Student</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+            <h3 class="title">Add Student</h3>
+            <div class="box">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="notification is-danger">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+            {% endwith %}
+                <form method="POST" action="/addStudent">
+                  <div class="field">
+                      <div class="control">
+                          <input class="input is-large" type="text" name="name" placeholder="Name" autofocus="">
+                      </div>
+                  </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="email" name="email" placeholder="Email" autofocus="">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="password" name="password" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="text" name="age" placeholder="Age">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                          <select name="major" class="form-select" aria-label="type" >
+                            {% for major in majors %}
+                              <option value="{{ major.major_name }}">{{ major.major_name }}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="text" name="address" placeholder="Address">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="text" name="registration" placeholder="EFET Registration">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                          <input class="input is-large" type="date" id="register_date" name="register_date" value="" placeholder="Registration Date">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="control">
+                          <label for="gender">Gender :</label>
+                          <select name="type" class="form-select" aria-label="type">
+                            <option value="male" selected>Male</option>
+                            <option value="female">Female</option>
+                          </select>
+                        </div>
+                    </div>
+
+                    <button class="button is-block is-info is-large is-fullwidth">Add Student</button>
+                </form>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal end -->
+
+<p class="spacing"></p>
+<p class="spacing"></p>
+
+
+<script type="text/javascript">
+   function searchTeacher() {
+     var filter = event.target.value.toUpperCase();
+     var rows = document.querySelector("#myTableTeacher tbody").rows;
+
+         for (var i = 0; i < rows.length; i++) {
+             var firstCol = rows[i].cells[0].textContent.toUpperCase();
+             var secondCol = rows[i].cells[1].textContent.toUpperCase();
+             if (firstCol.indexOf(filter) > -1 || secondCol.indexOf(filter) > -1) {
+                 rows[i].style.display = "";
+             } else {
+                 rows[i].style.display = "none";
+             }
+         }
+   }
+
+</script>
+
+Search :
+<input id="myInput" type="text" onKeyUp="return searchTeacher()"/>
+
+<table style="width: 100%" id="myTableTeacher">
+    <colgroup>
+       <col span="1" style="width: 12%;">
+       <col span="1" style="width: 12%;">
+       <col span="1" style="width: 12%;">
+       <col span="1" style="width: 10%;">
+       <col span="1" style="width: 7%;">
+       <col span="1" style="width: 7%;">
+       <col span="1" style="width: 7%;">
+       <col span="1" style="width: 7%;">
+
+    </colgroup>
+
+    <thead>
+        <tr>
+            <th style="background-color: #777; text-align: center">Name</th>
+            <th style="background-color: #777; text-align: center">Email</th>
+            <th style="background-color: #777; text-align: center">Phone</th>
+            <th style="background-color: #777; text-align: center">Registration</th>
+            <th style="background-color: #777; text-align: center">Edit</th>
+            <th style="background-color: #777; text-align: center">Delete</th>
+            <th style="background-color: #777; text-align: center">Absence</th>
+            <th style="background-color: #777; text-align: center"><b>+</b></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in all_teacher %}
+        <tr style="height:35px;">
+            <td style="background-color: #FFEADD; text-align: center">{{ user.name }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ user.email }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ user.phone }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ user.registration }}</td>
+            <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editStudentModal{{user.id}}">Edit</button></td>
+            <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteStudentModal{{user.id}}">Delete</button></td>
+            <td style="background-color: #FFEADD; text-align: center"><a href="/consultAbsence/{{ user.id }}" class="btn btn-outline-dark btn-sm">Check</a></td>
+            <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#moreStudentModal{{user.id}}"><b>+</b></button></td>
+        </tr>
+
+        <!-- Modal start -->
+        <div class="modal fade" id="editStudentModal{{user.id}}" tabindex="-1" role="dialog" aria-labelledby="editStudentModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editStudentLabel">Edit Teacher</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                    <div class="box">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="notification is-danger">
+                            {{ messages[0] }}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                    <form method="POST" action="/editStudent">
+                      <div class="field">
+                        <label for="gender">Name :</label>
+                          <div class="control">
+                              <input class="input is-large" type="text" name="name" value="{{ user.name }}" placeholder="Name" autofocus="" >
+                          </div>
+                      </div>
+                        <div class="field">
+                          <label for="gender">Email :</label>
+                            <div class="control">
+                                <input class="input is-large" type="email" name="email" value="{{ user.email }}" placeholder="Email" autofocus="" >
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Password :</label>
+                            <div class="control">
+                                <input class="input is-large" type="password" name="password" placeholder="Password">
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Phone :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="phone" value="{{ user.phone }}" placeholder="Phone" autofocus="" >
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="gender">Age :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="age" value="{{ user.age }}" placeholder="Age" >
+                            </div>
+                        </div>
+
+                        <div class="field">
+                          <label for="gender">Address :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="address" value="{{ user.address }}" placeholder="Address" >
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Registration ID :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="registration" value="{{ user.registration }}" placeholder="Registration" >
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Register date :</label>
+                            <div class="control">
+                              <input class="input is-large" type="date" id="register_date" name="register_date" value="{{ user.register_date }}" placeholder="Registration Date">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                          <label for="gender">Role :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="role" value="{{ user.role }}" placeholder="Role">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                              <label for="gender">Gender :</label>
+                              <select name="gender" class="form-select" aria-label="type" >
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                              </select>
+                            </div>
+                        </div>
+                        <input class="input is-large" type="hidden" name="user_id" placeholder="{{user.id}}" value="{{user.id}}" autofocus="">
+                        <input class="input is-large" type="hidden" name="role" value="teacher" autofocus="">
+
+                        <input class="btn btn-danger" type="submit" value="Save Changes">
+                    </form>
+                  </div>
+
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal end -->
+
+        <!-- Modal start -->
+        <div class="modal fade" id="moreStudentModal{{user.id}}" tabindex="-1" role="dialog" aria-labelledby="moreStudentModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="moreStudentModalLabel">More Infos</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                    <div class="box">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="notification is-danger">
+                            {{ messages[0] }}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                    <form method="POST">
+
+                      <div class="field">
+                        <label for="gender">Name :</label>
+                          <div class="control">
+                              <input class="input is-large" type="text" name="name" value="{{ user.name }}" placeholder="Name" autofocus="" disabled>
+                          </div>
+                      </div>
+                        <div class="field">
+                          <label for="gender">Email :</label>
+                            <div class="control">
+                                <input class="input is-large" type="email" name="email" value="{{ user.email }}" placeholder="Email" autofocus="" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Phone :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="phone" value="{{ user.phone }}" placeholder="Phone" autofocus="" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="gender">Age :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="age" value="{{ user.age }}" placeholder="Age" disabled>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                          <label for="gender">Address :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="address" value="{{ user.address }}" placeholder="Address" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Registration ID :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="registration" value="{{ user.registration }}" placeholder="Registration" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Register date :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="register_date" value="{{ user.register_date }}" placeholder="Registration Date" disabled>
+                            </div>
+                        </div>
+                        <div class="field">
+                          <label for="gender">Role :</label>
+                            <div class="control">
+                                <input class="input is-large" type="text" name="role" value="{{ user.role }}" placeholder="Role" disabled>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                              <label for="gender">Gender :</label>
+                              <select name="gender" class="form-select" aria-label="type" disabled>
+                                <option value="male" selected>Male</option>
+                                <option value="female">Female</option>
+                              </select>
+                            </div>
+                        </div>
+                        <input class="input is-large" type="hidden" name="user_id" placeholder="{{user.id}}" value="{{user.id}}" autofocus="">
+
+                    </form>
+                  </div>
+
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal end -->
+
+        <!-- Modal start -->
+        <div class="modal fade" id="deleteStudentModal{{user.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteStudentModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteStudentModalLabel">Delete Teacher</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                Are you sure about deleting this teacher permanently ?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form method="POST" action="{{ url_for('main.deleteStudent') }}">
+                  <input class="input is-large" type="hidden" name="user_id" placeholder="{{user.id}}" value="{{user.id}}" autofocus="">
+                  <input class="btn btn-danger" type="submit" value="Delete">
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal end -->
+
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<p class="spacing"></p>
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addTeacherModal">Add Teacher</button>
+
+
+<!-- Modal start -->
+<div class="modal fade" id="addTeacherModal" tabindex="-1" role="dialog" aria-labelledby="addTeacherModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTeacherModalLabel">Add Teacher</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+            <h3 class="title">Add Teacher</h3>
+            <div class="box">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="notification is-danger">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+            {% endwith %}
+                <form method="POST" action="/addStudent">
+                  <div class="field">
+                      <div class="control">
+                          <input class="input is-large" type="text" name="name" placeholder="Name" autofocus="">
+                      </div>
+                  </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="email" name="email" placeholder="Email" autofocus="">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="password" name="password" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="text" name="age" placeholder="Age">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="text" name="address" placeholder="Address">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="text" name="registration" placeholder="EFET Registration">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                          <input class="input is-large" type="date" id="register_date" name="register_date" value="" placeholder="Registration Date">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="control">
+                          <label for="gender">Gender :</label>
+                          <select name="type" class="form-select" aria-label="type">
+                            <option value="male" selected>Male</option>
+                            <option value="female">Female</option>
+                          </select>
+                        </div>
+                    </div>
+
+                    <input class="input is-large" type="hidden" name="role" value="teacher" autofocus="">
+                    <button class="button is-block is-info is-large is-fullwidth">Add Teacher</button>
+                </form>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal end -->
+
+<p class="spacing"></p>
+<p class="spacing"></p>
+
+<!-- ------------------------- MAJORS AND MESSAGERIE -->
+
+<div class="container">
+    <div class="row my-2">
+
+      <div class="col-lg-6 order-lg-1" >
+        <div class="tab-content py-4">
+
+          <!-- ------------------------- MAJORS -->
+
+          <table style="width: 100%">
+              <colgroup>
+                 <col span="1" style="width: 10%;">
+                 <col span="1" style="width: 20%;">
+                 <col span="1" style="width: 10%;">
+                 <col span="1" style="width: 10%;">
+                 <col span="1" style="width: 10%;">
+                 <col span="1" style="width: 10%;">
+              </colgroup>
+
+              <thead>
+                  <tr>
+                      <th style="background-color: #777; text-align: center">ID</th>
+                      <th style="background-color: #777; text-align: center">Major Name</th>
+                      <th style="background-color: #777; text-align: center">Duration (years)</th>
+                      <th style="background-color: #777; text-align: center">N of Students</th>
+                      <th style="background-color: #777; text-align: center">Edit</th>
+                      <th style="background-color: #777; text-align: center">Delete</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for major in majors %}
+                  <tr style="height:35px;">
+                      <td style="background-color: #FFEADD; text-align: center">{{ major.id }}</td>
+                      <td style="background-color: #FFEADD; text-align: center">{{ major.major_name }}</td>
+                      <td style="background-color: #FFEADD; text-align: center">{{ major.duration }}</td>
+                      <td style="background-color: #FFEADD; text-align: center">{{ major.number_students }}</td>
+                      <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editMajorModal{{major.id}}">Edit</button></td>
+                      <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteMajorModal{{major.id}}">Delete</button></td>
+                  </tr>
+
+                  <!-- Modal start -->
+                  <div class="modal fade" id="editMajorModal{{major.id}}" tabindex="-1" role="dialog" aria-labelledby="editMajorModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="editMajorModalLabel">Edit Major</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                              <div class="box">
+                              {% with messages = get_flashed_messages() %}
+                              {% if messages %}
+                                  <div class="notification is-danger">
+                                      {{ messages[0] }}
+                                  </div>
+                              {% endif %}
+                              {% endwith %}
+                              <form method="POST" action="/editMajor">
+                                  <div class="field">
+                                      <div class="control">
+                                          <input class="input is-large" type="text" name="major_name" value="{{ major.major_name }}" placeholder="Major Name" autofocus="">
+                                      </div>
+                                  </div>
+                                  <div class="field">
+                                      <div class="control">
+                                          <input class="input is-large" type="text" name="duration" value="{{ major.duration }}" placeholder="Duration" autofocus="">
+                                      </div>
+                                  </div>
+                                  <input class="input is-large" type="hidden" name="major_id" placeholder="{{major.id}}" value="{{major.id}}" autofocus="">
+                                  <input class="btn btn-danger" type="submit" value="Save Changes">
+                              </form>
+                            </div>
+
+
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Modal end -->
+
+                  <!-- Modal start -->
+                  <div class="modal fade" id="deleteMajorModal{{major.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteMajorModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="deleteMajorModalLabel">Delete Major</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          Are you sure about deleting this major permanently ?
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <form method="POST" action="{{ url_for('main.deleteMajor') }}">
+                            <input class="input is-large" type="hidden" name="major_id" placeholder="{{major.id}}" value="{{major.id}}" autofocus="">
+                            <input class="btn btn-danger" type="submit" value="Delete">
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Modal end -->
+
+                  {% endfor %}
+              </tbody>
+          </table>
+
+
+          <p class="spacing"></p>
+
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addMajorModal">Add Major</button>
+
+          <!-- Modal start -->
+          <div class="modal fade" id="addMajorModal" tabindex="-1" role="dialog" aria-labelledby="addMajorModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addMajorModalLabel">Add Major</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                      <h3 class="title">Add Major</h3>
+                      <div class="box">
+                      {% with messages = get_flashed_messages() %}
+                      {% if messages %}
+                          <div class="notification is-danger">
+                              {{ messages[0] }}
+                          </div>
+                      {% endif %}
+                      {% endwith %}
+                          <form method="POST" action="/addMajor">
+                              <div class="field">
+                                  <div class="control">
+                                      <input class="input is-large" type="text" name="major_name" placeholder="Major Name" autofocus="">
+                                  </div>
+                              </div>
+                              <div class="field">
+                                  <div class="control">
+                                      <input class="input is-large" type="text" name="duration" placeholder="Duration" autofocus="">
+                                  </div>
+                              </div>
+                              <button class="button is-block is-info is-large is-fullwidth">Add Major</button>
+                          </form>
+                      </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Modal end -->
+
+          <!-- ------------------------- MAJORS END -->
+
+        </div>
+      </div>
+
+
+      <div class="col-lg-6 order-lg-2" >
+          <div class="tab-content py-4">
+
+
+            <table style="width: 100%">
+                <colgroup>
+                   <col span="1" style="width: 10%;">
+                   <col span="1" style="width: 20%;">
+                   <col span="1" style="width: 10%;">
+                   <col span="1" style="width: 10%;">
+                   <col span="1" style="width: 10%;">
+                </colgroup>
+
+                <thead>
+                    <tr>
+                        <th style="background-color: #777; text-align: center">ID</th>
+                        <th style="background-color: #777; text-align: center">Subject Name</th>
+                        <th style="background-color: #777; text-align: center">Teacher Name</th>
+                        <th style="background-color: #777; text-align: center">Edit</th>
+                        <th style="background-color: #777; text-align: center">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in all_subject %}
+                    <tr style="height:35px;">
+                        <td style="background-color: #FFEADD; text-align: center">{{ subject.id }}</td>
+                        <td style="background-color: #FFEADD; text-align: center">{{ subject.name }}</td>
+                        <td style="background-color: #FFEADD; text-align: center">{{ subject.teacher_name }}</td>
+                        <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editSubjectModal{{subject.id}}">Edit</button></td>
+                        <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteSubjectModal{{subject.id}}">Delete</button></td>
+                    </tr>
+
+                    <!-- Modal start -->
+                    <div class="modal fade" id="editSubjectModal{{subject.id}}" tabindex="-1" role="dialog" aria-labelledby="editSubjectModalLabel" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="editSubjectModalLabel">Edit Subject</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                                <div class="box">
+
+                                <form method="POST" action="/editSubject">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input class="input is-large" type="text" name="subject_name" value="{{ subject.name }}" placeholder="Subject Name" autofocus="">
+                                        </div>
+                                    </div>
+
+                                    <div class="field">
+                                        <div class="control">
+                                          <label for="prof_id">Teachers :</label>
+                                          <select name="prof_id" class="form-select" aria-label="type" >
+                                            {% for teacher in all_teacher %}
+                                              <option value="{{ teacher.id }}">{{ teacher.name }}</option>
+                                            {% endfor %}
+                                          </select>
+                                        </div>
+                                    </div>
+
+                                    <input class="input is-large" type="hidden" name="subject_id" value="{{subject.id}}" autofocus="">
+                                    <input class="btn btn-danger" type="submit" value="Save Changes">
+                                </form>
+                              </div>
+
+
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Modal end -->
+
+                    <!-- Modal start -->
+                    <div class="modal fade" id="deleteSubjectModal{{subject.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteSubjectModalLabel" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="deleteSubjectModalLabel">Delete Subject</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            Are you sure about deleting this subject permanently ?
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                            <form method="POST" action="/deleteSubject">
+                              <input class="input is-large" type="hidden" name="subject_id" value="{{subject.id}}" autofocus="">
+                              <input class="btn btn-danger" type="submit" value="Delete">
+                            </form>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Modal end -->
+
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <p class="spacing"></p>
+
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addSubjectModal">Add Subject</button>
+
+            <!-- Modal start -->
+            <div class="modal fade" id="addSubjectModal" tabindex="-1" role="dialog" aria-labelledby="addSubjectModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="addSubjectModalLabel">Add Subject</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                        <h3 class="title">Add Subject</h3>
+                        <div class="box">
+                            <form method="POST" action="/addSubject">
+                                <div class="field">
+                                    <div class="control">
+                                        <input class="input is-large" type="text" name="subject_name" placeholder="Subject Name" autofocus="">
+                                    </div>
+                                </div>
+
+                                <div class="field">
+                                    <div class="control">
+                                      <label for="prof_id">Teachers :</label>
+                                      <select name="prof_id" class="form-select" aria-label="type" >
+                                        {% for teacher in all_teacher %}
+                                          <option value="{{ teacher.id }}">{{ teacher.name }}</option>
+                                        {% endfor %}
+                                      </select>
+                                    </div>
+                                </div>
+
+                                <button class="button is-block is-info is-large is-fullwidth">Add Subject</button>
+                            </form>
+                        </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+      </div>
+
+
+        <div class="col-lg-12 order-lg-2" style="background-color:#361e19;">
+            <div class="tab-content py-4">
+
+              <table style="width: 100%">
+                  <colgroup>
+                     <col span="1" style="width: 20%;">
+                     <col span="1" style="width: 10%;">
+                     <col span="1" style="width: 10%;">
+                     <col span="1" style="width: 60%;">
+                  </colgroup>
+
+                  <thead>
+                      <tr>
+                          <th style="background-color: #777; text-align: center">Date</th>
+                          <th style="background-color: #777; text-align: center">From</th>
+                          <th style="background-color: #777; text-align: center">To</th>
+                          <th style="background-color: #777; text-align: center">Message</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for message in messages %}
+                      <tr style="height:35px;">
+                          <td style="background-color: #FFEADD; text-align: center">{{ message.date_sent }}</td>
+                          <td style="background-color: #FFEADD; text-align: center">{{ message.msg_from }}</td>
+                          <td style="background-color: #FFEADD; text-align: center">{{ message.msg_to }}</td>
+                          <td style="background-color: #FFEADD; text-align: center">{{ message.content }}</td>
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+              <form method="POST" action="/sendMessage">
+
+                <div class="row my-2">
+                  <div class="col-lg-3 order-lg-1">
+                    <div class="tab-content py-4">
+
+                        <div class="field">
+                          <label for="recipient_id" style="color: white;">Send to :</label>
+                            <div class="control">
+                              <select name="recipient_id" class="form-select" aria-label="type" >
+                                {% for recipient in users %}
+                                  <option value="{{ recipient.id }}">{{ recipient.name }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                        </div>
+
+                    </div>
+                  </div>
+
+                    <div class="col-lg-9 order-lg-2" style="background-color:#361e19;">
+                        <div class="tab-content py-4">
+
+                          <div class="field">
+                            <label for="recipient_id" style="color: white;">Message :</label>
+                              <div class="control">
+                                  <textarea class="input" id="message" name="message" rows="4" cols="50" placeholder="Your message here .."></textarea>
+                              </div>
+                          </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <button class="button is-primary">Send Message</button>
+              </form>
+
+            </div>
+        </div>
+
+
+
+
+    </div>
+</div>
+
+<!-- ------------------------- END MAJORS AND MESSAGERIE -->
+
+
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+
+
+{% endblock %}

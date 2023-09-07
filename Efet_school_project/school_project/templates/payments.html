@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+  table, th, td {
+    border: 2px solid black;
+    padding: 5px;
+  }
+  table {
+    border-spacing: 15px;
+  }
+  p.spacing {
+    line-height: 2;
+  }
+  .parent {
+    overflow:hidden;
+    width:90%;
+  }
+  .left{
+    float:left;
+    width: 50%;
+  }
+
+  .right {
+    float: right;
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/fontawesome.min.css">
+{% endblock head %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
+
+<p class="font-weight-normal" style="text-align:left;">
+    Here you can manage payments for student : <b>{{ student_infos.name }}</b>, registered as : <b>{{ student_infos.registration }}</b>
+</p>
+
+
+<table style="width: 100%">
+    <colgroup>
+       <col span="1" style="width: 5%;">
+       <col span="1" style="width: 12%;">
+       <col span="1" style="width: 18%;">
+       <col span="1" style="width: 10%;">
+       <col span="1" style="width: 8%;">
+       <col span="1" style="width: 10%;">
+       <col span="1" style="width: 13%;">
+       <col span="1" style="width: 8%;">
+       <col span="1" style="width: 8%;">
+       <col span="1" style="width: 8%;">
+    </colgroup>
+
+    <thead>
+        <tr>
+            <th style="background-color: #777; text-align: center">ID</th>
+            <th style="background-color: #777; text-align: center">Student Id</th>
+            <th style="background-color: #777; text-align: center">Month Paid</th>
+            <th style="background-color: #777; text-align: center">Payment Date</th>
+            <th style="background-color: #777; text-align: center">Amount</th>
+            <th style="background-color: #777; text-align: center">Status</th>
+            <th style="background-color: #777; text-align: center">Payment Type</th>
+            <th style="background-color: #777; text-align: center">Edit</th>
+            <th style="background-color: #777; text-align: center">Delete</th>
+            <th style="background-color: #777; text-align: center">Generate</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for payment in all_payments %}
+        <tr style="height:35px;">
+            <td style="background-color: #FFEADD; text-align: center">{{ payment.id }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ payment.student_id }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ payment.month_paid }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ payment.payment_date }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ payment.amount }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ payment.status }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ payment.type }}</td>
+            <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#editPaymentModal{{payment.id}}">Edit</button></td>
+            <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deletePaymentModal{{payment.id}}">Delete</button></td>
+            <td style="background-color: #FFEADD; text-align: center"><a href="/generatePdfPayment/{{ student_infos.id }}/{{ payment.id }}" class="btn btn-info btn-sm" onclick="alert('Proof of payment pdf created');">Pdf</a></td>
+        </tr>
+
+        <!-- Modal start -->
+        <div class="modal fade" id="deletePaymentModal{{payment.id}}" tabindex="-1" role="dialog" aria-labelledby="deletePaymentModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deletePaymentModalLabel">Delete Student Payment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                Are you sure about deleting this payment permanently ?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form method="POST" action="{{ url_for('main.deletePayment') }}">
+                  <input class="input is-large" type="hidden" name="payment_id" placeholder="{{payment.id}}" value="{{payment.id}}" autofocus="">
+                  <input class="input is-large" type="hidden" name="user_id" placeholder="{{student_infos.id}}" value="{{student_infos.id}}" autofocus="">
+                  <input class="btn btn-danger" type="submit" value="Delete">
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal end -->
+
+        <!-- Modal start -->
+        <div class="modal fade" id="editPaymentModal{{payment.id}}" tabindex="-1" role="dialog" aria-labelledby="editPaymentModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editPaymentModalLabel">Edit Payment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                    <h3 class="title">Edit Payment</h3>
+                    <div class="box">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="notification is-danger">
+                            {{ messages[0] }}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                        <form method="POST" action="/editPayment">
+                            <div class="field">
+                                <div class="control">
+                                  <label for="start">Month Paid :</label>
+                                  <input class="input is-large" type="month" id="month_paid" name="month_paid" min="2000-01" value="{{ payment.month_paid.rsplit('-', 1)[0] }}">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                  <label for="start">Payment Date :</label>
+                                  <input class="input is-large" type="date" id="payment_date" name="payment_date" min="2000-01-01" value="{{ payment.payment_date }}">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                    <input class="input is-large" type="text" name="amount" value="{{ payment.amount }}" placeholder="Amount in DHs">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                  <label for="status">Status :</label>
+                                  <select name="status" class="form-select" aria-label="status">
+                                    <option value="paid" {% if payment.status == 'paid' %} selected {% endif %}>Paid</option>
+                                    <option value="awaiting" {% if payment.status == 'awaiting' %} selected {% endif %}>Awaiting</option>
+                                  </select>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="control">
+                                  <label for="type">Type :</label>
+                                  <select name="type" class="form-select" aria-label="type">
+                                    <option value="fees" {% if payment.type == 'fees' %} selected {% endif %}>Fees</option>
+                                    <option value="registration" {% if payment.type == 'registration' %} selected {% endif %}>Registration</option>
+                                  </select>
+                                </div>
+                            </div>
+
+                            <input class="input is-large" type="hidden" name="user_id" placeholder="{{student_infos.id}}" value="{{student_infos.id}}" autofocus="">
+                            <input class="input is-large" type="hidden" name="payment_id" placeholder="{{payment.id}}" value="{{payment.id}}" autofocus="">
+
+                            <button class="button is-block is-info is-large is-fullwidth">Save Changes</button>
+                        </form>
+                    </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal end -->
+
+        {% endfor %}
+    </tbody>
+</table>
+
+<p class="spacing"></p>
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addStudentPayment">Add Payment</button>
+
+<!-- Modal start -->
+<div class="modal fade" id="addStudentPayment" tabindex="-1" role="dialog" aria-labelledby="addStudentPaymentLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addStudentPaymentLabel">New Payment</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+            <h3 class="title">Add Payment</h3>
+            <div class="box">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="notification is-danger">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+            {% endwith %}
+                <form method="POST" action="/addPayment">
+                    <div class="field">
+                        <div class="control">
+                          <label for="start">Month Paid :</label>
+                          <input class="input is-large" type="month" id="month_paid" name="month_paid" min="2018-03" value="2018-05">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                          <label for="start">Payment Date :</label>
+                          <input class="input is-large" type="date" id="payment_date" name="payment_date" min="2018-03-01" value="2018-05-01">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input class="input is-large" type="text" name="amount" placeholder="Amount in DHs">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                          <label for="status">Status :</label>
+                          <select name="status" class="form-select" aria-label="status">
+                            <option value="paid" selected>Paid</option>
+                            <option value="awaiting">Awaiting</option>
+                          </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                          <label for="type">Type :</label>
+                          <select name="type" class="form-select" aria-label="type">
+                            <option value="fees" selected>Fees</option>
+                            <option value="registration">Registration</option>
+                          </select>
+                        </div>
+                    </div>
+
+                    <input class="input is-large" type="hidden" name="user_id" placeholder="{{student_infos.id}}" value="{{student_infos.id}}" autofocus="">
+
+                    <button class="button is-block is-info is-large is-fullwidth">Save</button>
+                </form>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal end -->
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+
+
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+  table, th, td {
+    border: 2px solid black;
+    padding: 5px;
+  }
+  table {
+    border-spacing: 15px;
+  }
+  p.spacing {
+    line-height: 2;
+  }
+  .parent {
+    overflow:hidden;
+    width:90%;
+  }
+  .left{
+    float:left;
+    width: 50%;
+  }
+
+  .right {
+    float: right;
+  }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/fontawesome.min.css">
+{% endblock head %}
+
+{% block content %}
+
+<script type="text/javascript">
+  function int(value) {
+      return parseInt(value);
+  }
+
+  // this checks the value and updates it on the control, if needed
+  function checkValue(sender) {
+      let min = sender.min;
+      let max = sender.max;
+      let value = int(sender.value);
+      if (value>max) {
+          sender.value = min;
+      } else if (value<min) {
+          sender.value = max;
+      }
+  }
+</script>
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
+
+<p class="font-weight-normal" style="text-align:left;">
+    Here you can manage absence for student : <b>{{ student_infos.name }}</b><br>
+    Registered as : <b>{{ student_infos.registration }}</b><br>
+    Major : <b>{{ student_infos.major }}</b><br>
+    Year : <b>{{ student_infos.year }}</b>
+</p>
+
+
+<table style="width: 100%">
+    <colgroup>
+       <col span="1" style="width: 8%;">
+       <col span="1" style="width: 10%;">
+       <col span="1" style="width: 15%;">
+       <col span="1" style="width: 20%;">
+       <col span="1" style="width: 8%;">
+       <col span="1" style="width: 8%;">
+    </colgroup>
+
+    <thead>
+        <tr>
+            <th style="background-color: #777; text-align: center">ID</th>
+            <th style="background-color: #777; text-align: center">Date</th>
+            <th style="background-color: #777; text-align: center">Justified ?</th>
+            <th style="background-color: #777; text-align: center">Details</th>
+            <th style="background-color: #777; text-align: center">Edit</th>
+            <th style="background-color: #777; text-align: center">Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for absence in absences %}
+        <tr style="height:35px;">
+            <td style="background-color: #FFEADD; text-align: center">{{ absence.id }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ absence.date_absence }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ absence.justified }}</td>
+            <td style="background-color: #FFEADD; text-align: center">{{ absence.details }}</td>
+            <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#editAbsenceModal{{absence.id}}">Edit</button></td>
+            <td style="background-color: #FFEADD; text-align: center"><button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteAbsenceModal{{absence.id}}">Delete</button></td>
+        </tr>
+
+        <!-- Modal start -->
+        <div class="modal fade" id="deleteAbsenceModal{{absence.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteAbsenceModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteAbsenceModalLabel">Delete Absence</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                Are you sure about deleting this absence permanently ?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form method="POST" action="{{ url_for('main.deleteAbsence') }}">
+                  <input class="input is-large" type="hidden" name="absence_id" value="{{absence.id}}">
+                  <input class="input is-large" type="hidden" name="user_id" value="{{student_infos.id}}">
+                  <input class="btn btn-danger" type="submit" value="Delete">
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal end -->
+
+        <!-- Modal start -->
+        <div class="modal fade" id="editAbsenceModal{{absence.id}}" tabindex="-1" role="dialog" aria-labelledby="editAbsenceModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editAbsenceModalLabel">Edit Absence</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                    <h3 class="title">Edit Absence</h3>
+                    <div class="box">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="notification is-danger">
+                            {{ messages[0] }}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                        <form method="POST" action="/editAbsence">
+
+                          <div class="field">
+                              <div class="control">
+                                <label for="start">Absence Date & Time :</label>
+                                <input class="input is-large" type="datetime-local" id="date_absence" name="date_absence" value="{{ absence.date_absence }}">
+                              </div>
+                          </div>
+
+                          <div class="field">
+                              <div class="control">
+                                <label for="justified">Justified ?</label>
+                                <select name="justified" class="form-select" aria-label="type">
+                                  <option value="yes" {% if absence.justified == 'yes' %} selected {% endif %}>Yes</option>
+                                  <option value="no" {% if absence.justified == 'no' %} selected {% endif %}>No</option>
+                                  <option value="waiting" {% if absence.justified == 'waiting' %} selected {% endif %}>Waiting</option>
+                                </select>
+                              </div>
+                          </div>
+
+                          <div class="field">
+                              <div class="control">
+                                  <input class="input is-large" type="text" name="details" value="{{ absence.details }}" placeholder="Details">
+                              </div>
+                          </div>
+
+                            <input class="input is-large" type="hidden" name="user_id" value="{{student_infos.id}}">
+                            <input class="input is-large" type="hidden" name="absence_id"  value="{{absence.id}}" >
+
+                            <button class="button is-block is-info is-large is-fullwidth">Save Changes</button>
+                        </form>
+                    </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal end -->
+
+        {% endfor %}
+    </tbody>
+</table>
+
+<p class="spacing"></p>
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addStudentAbsence">Add Absence</button>
+
+<!-- Modal start -->
+<div class="modal fade" id="addStudentAbsence" tabindex="-1" role="dialog" aria-labelledby="addStudentAbsenceLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addStudentAbsenceLabel">New Absence</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+            <h3 class="title">Add Absence</h3>
+            <div class="box">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="notification is-danger">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+            {% endwith %}
+                <form method="POST" action="/addAbsence">
+                    <div class="field">
+                        <div class="control">
+                          <label for="start">Absence Date & Time :</label>
+                          <input class="input is-large" type="datetime-local" id="date_absence" name="date_absence">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="control">
+                          <label for="justified">Justified ?</label>
+                          <select name="justified" class="form-select" aria-label="type">
+                            <option value="yes" selected>Yes</option>
+                            <option value="no">No</option>
+                            <option value="waiting">Waiting</option>
+                          </select>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                      <label for="details">Details :</label>
+                        <div class="control">
+                            <input class="input is-large" type="text" name="details" placeholder="Details ..">
+                        </div>
+                    </div>
+
+                    <input class="input is-large" type="hidden" name="user_id" placeholder="{{student_infos.id}}" value="{{student_infos.id}}" autofocus="">
+
+                    <button class="button is-block is-info is-large is-fullwidth">Save</button>
+                </form>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal end -->
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+
+
+{% endblock %}

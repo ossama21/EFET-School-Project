@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+{% endblock head %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row my-2">
+        <div class="col-lg-8 order-lg-2">
+          <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#profile">Profile</a></li>
+            <li><a data-toggle="tab" href="#edit">Edit</a></li>
+          </ul>
+
+            <div class="tab-content py-4">
+                <div class="tab-pane active" id="profile">
+                    <h5 class="mb-3">User Profile</h5>
+                    <div class="row">
+                        <div class="col-md-5">
+                            <h6>About me</h6>
+                            <p>
+                                {{ current_user.about_me }}
+                            </p>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 class="mt-2"><span class="fa fa-clock-o ion-clock float-right"></span></h5>
+                            <table class="table table-sm table-hover table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                          <strong>Name : </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>Email : </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>Phone : </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>Age : </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>Address : </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>Registration Id : </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>Gender : </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>Role : </strong>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                          <strong>Major : </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>Register date : </strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>Current year : </strong>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="mt-2"><span class="fa fa-clock-o ion-clock float-right"></span></h5>
+                            <table class="table table-sm table-hover table-striped">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.name }}</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.email }}</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.phone }}</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.age }}</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.address }}</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.registration }}</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.gender }}</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.role }}</strong>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.major }}</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.register_date }}</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                          <strong>{{ current_user.year }}</strong>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!--/row-->
+                </div>
+
+                <div class="tab-pane" id="edit">
+                    <form role="form" method="POST" action="/updateProfile">
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label form-control-label">Name</label>
+                            <div class="col-lg-9">
+                                <input name="name" class="form-control" type="text" value="{{ current_user.name }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label form-control-label">Email</label>
+                            <div class="col-lg-9">
+                                <input name="email" class="form-control" type="email" value="{{ current_user.email }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label form-control-label">Phone</label>
+                            <div class="col-lg-9">
+                                <input name="phone" class="form-control" type="text" value="{{ current_user.phone }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label form-control-label">Age</label>
+                            <div class="col-lg-9">
+                                <input name="age" class="form-control" type="text" value="{{ current_user.age }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label form-control-label">Address</label>
+                            <div class="col-lg-9">
+                                <input name="address" class="form-control" type="text" value="{{ current_user.address }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label form-control-label">Registration</label>
+                            <div class="col-lg-9">
+                                <input name="registration" class="form-control" type="text" value="{{ current_user.registration }}" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label form-control-label">Major</label>
+                            <div class="col-lg-9">
+                                <input name="major" class="form-control" type="text" value="{{ current_user.major }}" disabled>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="control">
+                              <label class="col-lg-3 col-form-label form-control-label">Register Date :</label>
+                              <div class="col-lg-9">
+                                <input class="input" type="date" id="register_date" name="register_date" min="2000-01-01" value="{{ current_user.register_date }}" disabled>
+                              </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label form-control-label">Current Year</label>
+                            <div class="col-lg-9">
+                                <input name="year" class="form-control" type="text" value="{{ current_user.year }}" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label form-control-label">About Me</label>
+                            <div class="col-lg-9">
+                                <input name="about_me" class="form-control" type="text" value="{{ current_user.about_me }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-lg-3 col-form-label form-control-label">Gender :</label>
+                            <div class="col-lg-9">
+                              <select name="gender" class="form-select" aria-label="type">
+                                <option value="male" {% if current_user.gender == 'male' %} selected {% endif %}>Male</option>
+                                <option value="female" {% if current_user.gender == 'female' %} selected {% endif %}>Female</option>
+                              </select>
+                            </div>
+                        </div>
+                        <input class="btn btn-danger" type="submit" value="Save Changes">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- //placehold.it/150 -->
+        <div class="col-lg-4 order-lg-1 text-center">
+            <img src="{% if current_user.profile_picture %} {{current_user.profile_picture}} {% else %} //placehold.it/150 {% endif %}" class="mx-auto img-fluid img-circle d-block" alt="avatar">
+            <h6 class="mt-2">Upload a different photo</h6>
+            <label class="custom-file">
+            <form action = "/uploadPicture" method = "POST" enctype = "multipart/form-data">
+               <input type = "file" name = "file" id="file" class="custom-file-input">
+               <span class="custom-file-control">Choose file</span>
+               <input type = "submit">
+            </form>
+            </label>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
